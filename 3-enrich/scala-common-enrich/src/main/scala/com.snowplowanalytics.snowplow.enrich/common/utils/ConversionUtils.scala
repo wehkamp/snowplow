@@ -331,7 +331,10 @@ object ConversionUtils {
    */
   def stringToUri(uri: String, useNetaporter: Boolean = false): Validation[String, Option[URI]] =
     try {
-      val r = uri.replaceAll(" ", "%20") // Because so many raw URIs are bad, #346
+      val r = uri
+        .replaceAll(" ", "%20") // Because so many raw URIs are bad, #346
+        .replace("\\\"", "%5C%22")
+        .replace("\"", "%22")
       Some(URI.create(r)).success
     } catch {
       case npe: NullPointerException => None.success

@@ -446,7 +446,11 @@ object GoogleAnalyticsAdapter extends Adapter {
    * @return a Validation boxing either a RawEvent or a NEL of Failure Strings
    */
   private def parsePayload(bodyPart: String, payload: CollectorPayload): ValidationNel[String, RawEvent] = {
-    val params = toMap(URLEncodedUtils.parse(URI.create(s"http://localhost/?$bodyPart"), "UTF-8").toList)
+    val cleanedBodyPart =
+      bodyPart
+        .replace("\\\"", "%5C%22")
+        .replace("\"", "%22")
+    val params = toMap(URLEncodedUtils.parse(URI.create(s"http://localhost/?$cleanedBodyPart"), "UTF-8").toList)
     params.get("t") match {
       case None          => s"No $VendorName t parameter provided: cannot determine hit type".failNel
       case Some(hitType) =>
